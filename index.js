@@ -3,28 +3,32 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const bodyParser = require('body-parser');
-//const jwt = require('./api/helpers/jwt');
 const errorHandler = require('./api/helpers/error-handle');
 const expressGraphQL = require("express-graphql");
+import schema from "./api/graphQL";
+let middleware = require('./api/ultis');
+
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
 
-// use JWT auth to secure the api
-
-//app.use(jwt());
-
 // api routes
 app.use('/authentication', require('./api/controllers/authenControler'));
 app.use('/contacts', require('./api/controllers/contactControler'));
 app.use('/tasks', require('./api/controllers/taskControler'))
-// app.use("/graphql", cors(), bodyParser.json(),
-//   expressGraphQL({
-//     schema,
-//     graphiql: true
-//   })
-// );
+//app.use(middleware.checkToken)
+
+app.use("/graphql", bodyParser.json(), middleware.checkToken, async (request, response) => {
+  return expressGraphQL({
+    schema,
+    graphiql: true,
+    context: {
+      user: request.decoded
+    }
+  })(request, response);
+}
+);
 // global error handler
 app.use(errorHandler);
 

@@ -3,11 +3,11 @@ var Schema = mongoose.Schema;
 
 
 var ContactsSchema = new Schema({
-  firstname: {
+  firstName: {
     type: String,
     required: true
   },
-  lastname: {
+  lastName: {
     type: String
   },
   title: {
