@@ -23,6 +23,27 @@ let checkToken = (req, res, next) => {
   }
 };
 
+let prepareDashBoards = (user) => {
+  let data = {
+    userId: user._id,
+    title: "My Default Dashboard",
+    layoutType: "1_COLUMN",
+    widgets: [
+      {
+        title: "Text Widget",
+        widgetType: "TEXT_WIDGET",
+        minWidth: 400,
+        minHeight: 200,
+        configs: {
+          text: "Lorem Ipsum is simply dummy text of the printing and typesetting industry."
+        }
+      }
+    ]
+  }
+  return data;
+}
+
 module.exports = {
-  checkToken: checkToken
+  checkToken: checkToken,
+  prepareDashBoards: prepareDashBoards
 }

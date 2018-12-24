@@ -7,7 +7,8 @@ export default {
   Mutation: {
     // Handle user signup
     async signup(_, { username, firstname, lastname, password }) {
-      let status = true
+      let status = true;
+
       let data = { username, firstname, lastname, password }
       if (await Account.findOne({ usernme: data.username })) {
         throw 'Username "' + data.username + '" is already taken';

@@ -26,8 +26,7 @@ var AccountSchema = new Schema({
     },
     created: { type: Date, default: Date.now },
     version: { type: Number }
-  },
-  $loki: { type: Number }
+  }
 });
 
 module.exports = mongoose.model('Account', AccountSchema);

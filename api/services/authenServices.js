@@ -1,8 +1,11 @@
+import middleware from '../ultis'
+
 const config = require('../../config.json');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const db = require('../helpers/db');
 const User = db.User;
+const DashBoard = db.DashBoard;
 
 module.exports = {
   authenticate,
@@ -15,12 +18,12 @@ module.exports = {
 
 async function authenticate({ username, password }) {
   const user = await User.findOne({ username });
+  const dashBoard = [await DashBoard.findOne({ userId: user._id })];
   if (user && bcrypt.compareSync(password, user.password)) {
-    const { password, ...userWithoutPassword } = user.toObject();
     const token = jwt.sign({ sub: user.id }, config.secret);
     return {
-      ...userWithoutPassword,
-      token
+      token,
+      dashBoard
     };
   }
 }
@@ -34,6 +37,8 @@ async function getById(id) {
 }
 
 async function create(userParam) {
+  let status = true;
+
   if (await User.findOne({ username: userParam.username })) {
     throw 'Username "' + userParam.username + '" is already taken';
   }
@@ -42,7 +47,16 @@ async function create(userParam) {
   if (userParam.password) {
     user.password = bcrypt.hashSync(userParam.password, 10);
   }
-  await user.save();
+  try {
+    await user.save();
+    let userDashBoard = await User.findOne({ username: userParam.username })
+    let dataDashBoard = middleware.prepareDashBoards(userDashBoard);
+    let defaultDashBoard = new DashBoard(dataDashBoard);
+    await defaultDashBoard.save();
+    return status;
+  } catch (err) {
+    throw err
+  }
 }
 
 async function update(id, userParam) {
@@ -58,7 +72,6 @@ async function update(id, userParam) {
   }
 
   Object.assign(user, userParam);
-
   await user.save();
 }
 
